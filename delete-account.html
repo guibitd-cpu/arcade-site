@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0f0c">
+  <title>ลบบัญชี — 3BPH GAME HUB</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="brand" href="./">3BPH GAME HUB <span class="brand-sub">by BIRDTOPIA Studio</span></a>
+      <nav aria-label="เมนูหลัก">
+        <a href="play">กดเพื่อเข้าเล่นเกม</a>
+        <a href="privacy.html">นโยบายความเป็นส่วนตัว</a>
+        <a href="terms.html">ข้อกำหนดการใช้บริการ</a>
+        <a href="refund.html">การคืนเงิน</a>
+        <a href="delete-account.html" aria-current="page">ลบบัญชี</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1>ลบบัญชีและข้อมูลออนไลน์</h1>
+    <p class="meta">ปรับปรุงล่าสุด: 1 พฤศจิกายน 2026 · ฉบับ 1.1</p>
+
+    <p class="lead">
+      ผู้ใช้ BIRDTOPIA Arcade สามารถขอลบบัญชีและข้อมูลออนไลน์ได้
+      โดยไม่เสียค่าใช้จ่าย เลือกวิธีที่สะดวกด้านล่าง
+    </p>
+
+    <section class="card">
+      <h2>วิธีที่ 1: ลบจากในแอป (แนะนำ)</h2>
+      <ol>
+        <li>เปิดแอป BIRDTOPIA Arcade และเข้าสู่ระบบด้วยบัญชีที่ต้องการลบ</li>
+        <li>ไปที่หน้าหลัก แล้วเปิด <strong>ลีดเดอร์บอร์ด / Leaderboard</strong></li>
+        <li>ใต้การ์ดบัญชีของคุณ เลือก <strong>ลบบัญชี / Delete account</strong></li>
+        <li>กรอกเบอร์มือถือที่ใช้ตอนสมัคร (ถ้าบัญชีมีเบอร์) และรหัสผ่านปัจจุบันเพื่อยืนยันตัวตน แล้วกด <strong>ลบบัญชีถาวร</strong></li>
+      </ol>
+      <p class="note">
+        ต้องใช้อินเทอร์เน็ตและรหัสผ่านที่ถูกต้อง หากลบไม่สำเร็จให้ตรวจสอบเครือข่ายแล้วลองใหม่
+        ระบบจะลบคะแนนลีดเดอร์บอร์ด โปรไฟล์ และบัญชี Firebase Authentication ตามลำดับ
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>วิธีที่ 2: ส่งคำขอทางอีเมล</h2>
+      <p>
+        ใช้วิธีนี้เมื่อไม่สามารถเข้าสู่ระบบหรือลบจากในแอปไม่ได้
+        ส่งอีเมลจาก<strong>อีเมลที่ใช้สมัครบัญชี</strong> ไปที่
+        <a href="mailto:g36550583@gmail.com">g36550583@gmail.com</a>
+      </p>
+      <ul>
+        <li>หัวเรื่อง: <strong>Account deletion request — BIRDTOPIA Arcade</strong></li>
+        <li>ระบุอีเมลของบัญชีที่ต้องการลบ</li>
+        <li>ระบุชื่อที่แสดงในเกม (ถ้าจำได้)</li>
+        <li>อย่าส่งรหัสผ่านหรือข้อมูลการชำระเงินทางอีเมล</li>
+      </ul>
+      <p>
+        เราอาจขอข้อมูลเพิ่มเติมเพื่อยืนยันความเป็นเจ้าของบัญชี
+        และจะดำเนินการภายใน 30 วันนับจากที่ยืนยันคำขอสำเร็จ
+      </p>
+    </section>
+
+    <h2>ข้อมูลที่จะถูกลบ</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ข้อมูล</th>
+          <th>รายละเอียด</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>บัญชี Firebase Authentication</td>
+          <td>อีเมล ข้อมูลการเข้าสู่ระบบ และบัญชีผู้ใช้ ผู้ใช้จะออกจากระบบทันที</td>
+        </tr>
+        <tr>
+          <td>โปรไฟล์ใน Firestore</td>
+          <td>เอกสาร <code>users/{uid}</code> เช่น ชื่อที่แสดง อีเมล เบอร์มือถือ (ถ้ากรอกไว้) และเวลาที่สร้าง/แก้ไข</td>
+        </tr>
+        <tr>
+          <td>คะแนนลีดเดอร์บอร์ด</td>
+          <td>รายการคะแนนของผู้ใช้ในบอร์ดทั้ง 6 บอร์ด (Era 1/2 × ความยาก 1/2/3)</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="warning">
+      การลบบัญชีเป็นการถาวรและย้อนกลับไม่ได้ เมื่อลบแล้วคะแนนและอันดับเดิมจะไม่สามารถกู้คืนได้
+      แม้จะสมัครใหม่ด้วยอีเมลเดิม
+    </p>
+
+    <h2>ข้อมูลที่ไม่ถูกลบด้วย</h2>
+    <ul>
+      <li>
+        <strong>ข้อมูลในเครื่องนี้</strong> เช่น Token ทดลอง ประวัติ Token ความคืบหน้า สกิน และการตั้งค่า
+        จะยังอยู่ในอุปกรณ์จนกว่าผู้ใช้จะล้างข้อมูลแอปหรือถอนการติดตั้ง
+      </li>
+      <li>
+        <strong>ข้อมูลโฆษณาที่ Google เก็บ</strong> อาจถูกเก็บตามนโยบายของ Google
+        นอกเหนือการควบคุมของแอป ผู้ใช้สามารถจัดการผ่านการตั้งค่าโฆษณาของบัญชี Google
+      </li>
+      <li>
+        <strong>บันทึกทางเทคนิคหรือข้อมูลรวม</strong> ที่ไม่สามารถระบุตัวบุคคลได้
+        อาจถูกเก็บต่อตามระยะเวลาที่จำเป็นหรือที่กฎหมายกำหนด
+      </li>
+    </ul>
+
+    <h2>ผลหลังการลบ</h2>
+    <ul>
+      <li>ผู้ใช้จะออกจากระบบและไม่สามารถเข้าสู่ระบบด้วยบัญชีเดิมได้</li>
+      <li>ชื่อและคะแนนของผู้ใช้จะหายจากลีดเดอร์บอร์ด</li>
+      <li>สามารถสมัครบัญชีใหม่ด้วยอีเมลเดิมได้ แต่จะเริ่มจากข้อมูลออนไลน์ใหม่</li>
+      <li>Token และข้อมูลในเครื่องยังคงอยู่จนกว่าจะล้างข้อมูลแอปหรือถอนการติดตั้ง</li>
+    </ul>
+
+    <section class="card">
+      <h2>English summary</h2>
+      <p>
+        To delete your BIRDTOPIA Arcade account, open the app, sign in, open the
+        <strong>Leaderboard</strong>, choose <strong>Delete account</strong> under your account card,
+        enter your current password, and confirm. If you cannot sign in, email
+        <a href="mailto:g36550583@gmail.com">g36550583@gmail.com</a> from the address registered to the account with the
+        subject “Account deletion request — BIRDTOPIA Arcade”. Do not send your password.
+      </p>
+      <p>
+        Deletion removes your Firebase Authentication account, your Firestore
+        <code>users/{uid}</code> profile, and your entries on all six leaderboards.
+        It is permanent and cannot be undone. Experimental Token balances, progress, skins,
+        and settings stored on the device are not removed by account deletion; clear the app's data
+        or uninstall the app to remove them. Some Google advertising data and non-identifying
+        technical logs may be retained under Google's policies and applicable law.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>ติดต่อ</h2>
+      <p>
+        สตูดิโอผู้ผลิต: <strong>BIRDTOPIA Studio</strong><br>
+        บริษัท: <strong>3BPH-K.T.M.Gamehub.Studio</strong><br>
+        อีเมล: <a href="mailto:g36550583@gmail.com">g36550583@gmail.com</a><br>
+        โทร: <a href="tel:+66930085635">093 008 5635</a><br>
+        LINE: <a href="https://line.me/ti/p/dBnKK5Ghv-" target="_blank" rel="noopener">เพิ่มเพื่อนใน LINE</a><br>
+        เรื่อง: BIRDTOPIA Arcade — Account deletion
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>3BPH-K.T.M.Gamehub.Studio · BIRDTOPIA Studio · แอป Android</span>
+      <span><a href="./">หน้าแรก Arcade</a> · <a href="play">กดเพื่อเข้าเล่นเกม</a> · <a href="privacy.html">ความเป็นส่วนตัว</a></span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stickman Roar</title>
+<style>
+:root{--bg:#f4f1ea;--fg:#1d1d1f;--card:#fff;--line:#d8d3c8;--acc:#e5484d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15151a;--fg:#f0eee8;--card:#22222a;--line:#3a3a46}}
+:root[data-theme="dark"]{--bg:#15151a;--fg:#f0eee8;--card:#22222a;--line:#3a3a46}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Noto Sans Thai",sans-serif;position:fixed;inset:0;overflow:hidden;background:#000}
+#wrap{position:fixed;inset:0}
+canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;background:#101018}
+#ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;background:rgba(10,10,16,.78);border-radius:12px;color:#f0eee8;padding:16px}
+#ov h1{margin:0;font-size:clamp(22px,6vw,38px)}
+#ov p{margin:0;font-size:13px;opacity:.85;max-width:420px}
+button{font:inherit;color:var(--fg);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+button.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+#go{background:var(--acc);color:#fff;border:0;font-weight:700;padding:12px 28px;touch-action:manipulation}
+.row{display:flex;gap:8px;width:100%;max-width:820px;justify-content:center;flex-wrap:wrap}
+.items button{flex:1;min-width:96px;font-size:13px;line-height:1.3}
+.pad{justify-content:space-between}
+.pad div{display:flex;gap:8px}
+.pad button{width:calc(var(--pb,56px)*1.1);height:var(--pb,56px);font-size:calc(var(--pb,56px)*.4);padding:0}
+#st{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%;max-width:820px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:13px}
+#st[hidden]{display:none}
+#st .kb{display:flex;flex-wrap:wrap;gap:6px}
+#st label{display:flex;flex-direction:column;gap:4px;min-width:180px}
+#st input[type=range]{width:100%}
+.pad .dp{display:grid;grid-template-columns:repeat(3,auto);gap:6px}
+.pad .ab{align-items:flex-end}
+.ab button[data-k=a]{border-color:#e5484d;font-weight:700}
+.ab button[data-k=b]{border-color:#4f8ef7;font-weight:700}
+.pad.edit button{outline:2px dashed var(--acc);outline-offset:3px}
+.pad.edit button.pk{outline:3px solid #f5c542;outline-offset:3px}
+#ultb{visibility:hidden}
+#ultb.rd{visibility:visible;border-color:#a46bff;animation:pu .7s infinite alternate}
+@keyframes pu{to{box-shadow:0 0 16px #a46bff}}
+#st details{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+#st summary{cursor:pointer;font-weight:600;list-style:none}
+#st summary::-webkit-details-marker{display:none}
+#st summary::after{content:'▾';float:right}
+#st details[open] summary::after{content:'▴'}
+#st details>*:not(summary){margin-top:8px}
+#st small{display:block;opacity:.7}
+#st label.bm{flex-direction:row;justify-content:space-between;align-items:center;min-width:0}
+#st select{font:inherit;color:var(--fg);background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:4px}
+#st{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(94vw,560px);max-height:88dvh;overflow:auto;z-index:30;color:var(--fg)}
+#st.ed{top:8px;transform:translateX(-50%);max-height:46dvh;width:min(70vw,460px)}
+.row.pad{position:fixed;left:0;right:0;bottom:0;width:auto;max-width:none;flex-wrap:nowrap;align-items:flex-end;padding:0 max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));pointer-events:none;z-index:5}
+.pad button{pointer-events:auto;opacity:.78;background:rgba(30,30,40,.6);color:#fff;border-color:rgba(255,255,255,.35)}
+#mid{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;gap:6px;align-items:flex-end;z-index:6}
+#cs{position:relative}
+#mid>button,#lab{font-size:13px;padding:8px 10px;background:rgba(30,30,40,.7);color:#fff;border-color:rgba(255,255,255,.35)}
+#items{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:6px;display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:6px;width:min(80vw,320px);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:8px}
+#items[hidden]{display:none}
+#items{max-height:58dvh;overflow:auto}
+#items button{min-width:0;text-align:left;font-size:13px;line-height:1.3}
+#items button small{display:block;opacity:.7}
+#rot{display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.94);color:#fff;font-size:18px;align-items:center;justify-content:center;text-align:center;padding:20px}
+@media (orientation:portrait){
+canvas{inset:env(safe-area-inset-top,0px) 0 auto 0;height:auto;aspect-ratio:2/1}
+#mid{bottom:auto;top:calc(50vw + env(safe-area-inset-top,0px) + 8px)}
+#items{bottom:auto;top:100%;margin:6px 0 0}
+.pad .ab{display:grid;grid-template-columns:repeat(2,auto)}
+}
+#lab{font-size:13px;opacity:.8;text-align:center}
+</style></head><body>
+<div id="rot">📱 กรุณาหมุนจอเป็นแนวนอนเพื่อเล่น</div><div id="wrap"><canvas id="c" width="800" height="400"></canvas>
+<div id="ov"><h1>🐺 Stickman Roar 🐯</h1><p>สวมอุปกรณ์ แล้วสะสมพลังโหมดจนเต็ม จากนั้นแปลงร่างเป็นสัตว์ร้ายตามอุปกรณ์ที่ใส่!</p><p>คีย์เริ่มต้น: A/D เดิน · W กระโดด · S หมอบ · J ต่อย (A) · K เตะ (B) · L แปลงร่าง<br>หมอบหลบหมัดได้ แต่จะโดนเตะ<br>กดหน้า 2 ครั้ง = พุ่ง · กดหลัง 2 ครั้ง = พุ่งถอย/กลิ้ง · ค้างหลัง = กัน (หลัง+A กันต่อย · หลัง+B กันเตะ)<br>แปลงร่างฟื้น HP 35% · ไม่ปะทะ 3 วิ HP ค่อยๆ ฟื้น<br>เกจม่วงเต็มจากการต่อสู้ → ปุ่ม ✨ ULT จะปรากฏ<br>เปลี่ยนปุ่มและขนาดปุ่มได้ที่ ⚙ ใต้เกม</p><button id="go">เริ่มต่อสู้</button></div></div>
+<div id="mid"><div id="cs"><button id="lab" style="touch-action:manipulation"></button><div class="items" id="items" hidden></div></div>
+
+<button id="gear" style="touch-action:manipulation">⚙ ตั้งค่า ▾</button><button id="fsb" style="touch-action:manipulation">⛶</button></div><div id="st" hidden></div>
+<div class="row pad"><div class="dp"><button data-k="j" style="grid-area:1/2">▲</button><button data-k="l" style="grid-area:2/1">◀</button><button data-k="r" style="grid-area:2/3">▶</button><button data-k="d" style="grid-area:3/2">▼</button></div><div class="ab"><button data-k="u" id="ultb">✨</button><button data-k="k">🔥</button><button data-k="a">A</button><button data-k="b">B</button></div></div>
+<script>
+const cv=document.getElementById('c'),g=cv.getContext('2d'),W=800,GY=340;
+const ITEMS={
+wolf:{n:'เขี้ยวหมาป่า',f:'ร่างหมาป่า: เร็วมาก',c:'#4fb286',sp:1.7,dm:1.3,rg:1,sc:1},
+tiger:{n:'กรงเล็บเสือ',f:'ร่างเสือ: หนัก แรงสุด',c:'#f0932b',sp:1,dm:2.1,rg:1.2,sc:1.3},
+dragon:{n:'เกล็ดมังกร',f:'ร่างมังกร: ไกล พ่นไฟ',c:'#e5484d',sp:1.2,dm:1.5,rg:1.9,sc:1.15},
+bat:{n:'ปีกค้างคาว',f:'ร่างค้างคาว: ลอยได้ ดูดเลือด',c:'#8a63d2',sp:1.3,dm:1.2,rg:1.3,sc:1,fly:1,ls:.25},
+rabbit:{n:'หูกระต่าย',f:'ร่างกระต่าย: กระโดดสูง ตีรัว',c:'#ff8fb8',sp:1.5,dm:1,rg:1,sc:1,jm:1.5,cf:.55},
+mole:{n:'ถุงมือตุ่น',f:'ร่างตุ่น: อึด ลดดาเมจครึ่ง',c:'#9c7a5b',sp:.9,dm:1.7,rg:1,sc:1.2,df:.5},
+beetle:{n:'เขาด้วงกว่าง',f:'ร่างด้วงกว่าง: เกราะแข็ง ลดดาเมจ',c:'#7a4b2a',sp:1,dm:1.6,rg:1.2,sc:1.2,df:.65},
+bull:{n:'เขากระทิง',f:'ร่างกระทิง: แรงสะบัด กระแทกไกล',c:'#b03a2e',sp:1.1,dm:1.9,rg:1.1,sc:1.3,kbm:1.6},
+hopper:{n:'ขาตั๊กแตน',f:'ร่างตั๊กแตน: กระโดดสองชั้น เร็ว',c:'#8bc34a',sp:1.4,dm:1.1,rg:1.2,sc:1,jm:1.5,dj:1},
+lizard:{n:'หางกิ้งก่า',f:'ร่างกิ้งก่า: พรางตัว ลิ้นไกล',c:'#17a589',sp:1.3,dm:1.3,rg:1.6,sc:1,camo:1}};
+const KEYS=Object.keys(ITEMS);let sel='wolf';
+const mk=(x,f,item,col)=>({x,y:GY,vy:0,vx:0,kx:0,f,hp:100,rage:0,item,beast:0,cd:0,atk:0,hit:0,col,t:0});
+let P,E,parts=[],rings=[],shake=0,state='ready',msg='';
+const inp={l:0,r:0,j:0,d:0,a:0,b:0,k:0,u:0};
+function reset(){P=mk(200,1,sel,'#f2f2f2');E=mk(600,-1,KEYS[Math.random()*KEYS.length|0],'#ff9aa2');parts=[];rings=[];state='play'}
+function spawn(x,y,c,n,s){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=s*(.3+Math.random());parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,l:.5+Math.random()*.3,c})}}
+const CB=[{k:'aab',n:'หมัด-หมัด-เตะ',m:2.2,kb:1.8},{k:'bba',n:'เตะคู่-ต่อย',m:1.8,kb:1.5},{k:'dfa',n:'พุ่งต่อย',m:1.6,kb:1.5,rm:1.8,dash:1}];
+const BM0={wolf:'dash',tiger:'roll',dragon:'roll',bat:'dash',rabbit:'dash',mole:'roll',beetle:'roll',bull:'dash',hopper:'dash',lizard:'roll'};const bmode=k=>(cfg.bm&&cfg.bm[k])||BM0[k];
+function push(p,c){p.buf=(p.buf||[]).filter(x=>p.t-x.t<1);p.buf.push({c,t:p.t})}
+function findCombo(p){const s=(p.buf||[]).map(x=>x.c).join('');return CB.find(c=>s.endsWith(c.k))}
+const ULT={wolf:{n:'ฟันจันทร์เสี้ยว',h:6,d:4.5,r:170},tiger:{n:'คำรามทลายพสุธา',h:1,d:30,r:190,kb:900},dragon:{n:'ลมหายใจมังกร',h:5,d:5.5,r:420},bat:{n:'ราตรีสูบเลือด',h:4,d:6,r:200,ls:.5},rabbit:{n:'เตะจันทราระรัว',h:8,d:3.4,r:150},mole:{n:'แผ่นดินไหว',h:2,d:13,r:320,stun:1.2},
+beetle:{n:'เขาพิฆาตจักรพรรดิ',h:3,d:9,r:230,kb:600},bull:{n:'วัวพุ่งทะลวงฟ้า',h:2,d:15,r:260,kb:800},hopper:{n:'เตะพุ่งดาวตก',h:6,d:4.8,r:200},lizard:{n:'ลิ้นสังหารเงา',h:5,d:5.5,r:300,ls:.3}};
+function ultHit(p,o){const U=ULT[p.item],B=p.beast>0;
+ if(Math.abs(o.x-p.x)<U.r*(B?1.15:1)&&Math.abs(o.y-p.y)<90&&(o.x-p.x)*p.f>0&&!((o.dk==3&&o.dsh>0)||(o.dk==2&&o.dsh>.1)||o.ut>0)){
+  const dd=U.d*(B?1.3:1)*(o.gd?.5:1)*((o.beast>0&&ITEMS[o.item].df)||1);
+  o.hp=Math.max(0,o.hp-dd);if(U.ls)p.hp=Math.min(100,p.hp+dd*U.ls);
+  o.kx=p.f*(U.kb||150);o.hit=(U.stun&&p.uq<=1)?U.stun:.18;p.lc=0;o.lc=0;
+  spawn(o.x,o.y-50,ITEMS[p.item].c,14,320);shake=8}
+ if(p.item=='wolf'||p.item=='rabbit'||p.item=='bull')p.kx=p.f*220}
+function doHit(p,o,kk,cb){
+ const B=p.beast>0,I=ITEMS[p.item],rng=(B?90*I.rg:60)*(kk?1.25:1)*((cb&&cb.rm)||1),dmg=(B?9*I.dm:5)*(kk?1.5:1)*(cb?cb.m:1);
+ if(Math.abs(o.x-p.x)<rng&&Math.abs(o.y-p.y)<70&&((o.x-p.x)*p.f>0)&&!(o.cr&&!kk)&&!((o.dk==3&&o.dsh>0)||(o.dk==2&&o.dsh>.1)||o.ut>0||(o.beast>0&&ITEMS[o.item].camo&&Math.abs(o.vx)<1&&Math.random()<.3))){
+  const gm=!o.gd?1:o.gd=='any'?.4:(o.gd==(kk?'b':'a')?0:1),dd=dmg*gm*((o.beast>0&&ITEMS[o.item].df)||1);o.hp=Math.max(0,o.hp-dd);if(B&&I.ls)p.hp=Math.min(100,p.hp+dd*I.ls);o.kx=p.f*(B?460:240)*(kk?1.4:1)*(cb?cb.kb:1)*((B&&I.kbm)||1);p.lc=0;o.lc=0;p.ug=Math.min(100,(p.ug||0)+(gm<1?3:6));o.ug=Math.min(100,(o.ug||0)+9);o.hit=gm<1?.1:.25;if(gm<1){o.kx*=.4;spawn(o.x-p.f*20,o.y-50,'#6cf',10,200)}p.cd=Math.min(p.cd,gm<1?.3:.14);p.cc=gm==1?(p.ct>0?p.cc:0)+1:0;p.ct=1.3;if(cb){p.cn=cb.n;p.cnt=1.3;shake=12}
+  if(!B)p.rage=Math.min(100,p.rage+9);
+  if(o.beast<=0)o.rage=Math.min(100,o.rage+12);
+  spawn(o.x,o.y-50,B?I.c:'#fff',B?18:8,260);shake=B?9:4}}
+function step(p,o,i,dt){
+ const B=p.beast>0,I=ITEMS[p.item];p.t+=dt;if(p.ut>0)i={l:0,r:0,j:0,d:0,a:0,b:0,k:0,u:0};
+ p.f=o.x>p.x?1:-1;
+ if(p.hit>0)p.hit-=dt;
+ if(p.cd>0)p.cd-=dt;if(p.atk>0)p.atk-=dt;if(p.ct>0)p.ct-=dt;if(p.cnt>0)p.cnt-=dt;if(p.dsh>0){p.dsh-=dt;if(Math.random()<.6)spawn(p.x,p.y-4,'#aaa',1,80)}
+ p.lc=(p.lc||0)+dt;if(p.lc>3&&p.hp>0&&p.hp<100){p.hp=Math.min(100,p.hp+5*dt);if(Math.random()<.15)spawn(p.x,p.y-40,'#6f6',1,50)}
+ p.cr=!!i.d&&p.y>=GY&&p.hit<=0;p.vx=(p.hit>0||p.cr)?0:(i.r-i.l)*240*(B?I.sp:1);
+ if(i.j&&p.hit<=0){if(p.y>=GY){p.vy=-640*((B&&I.jm)||1);p.dj2=0}else if(B&&!p.jh){if(I.fly)p.vy=-420;else if(I.dj&&!p.dj2){p.vy=-560;p.dj2=1}}}p.jh=i.j;
+ const pi=p.pi||{},fw=p.f>0?i.r:i.l,pfw=p.f>0?pi.r:pi.l,bk=p.f>0?i.l:i.r,pbk=p.f>0?pi.l:pi.r;
+ if(i.d&&!pi.d)push(p,'d');
+ const dok=!(p.dsh>0)&&p.hit<=0&&p.y>=GY;
+ if(fw&&!pfw){push(p,'f');if(dok&&p.t-(p.tf||-9)<.3){p.dsh=.22;p.dk=1;p.kx=p.f*620;p.tf=-9}else p.tf=p.t}
+ if(bk&&!pbk){if(dok&&p.t-(p.tb||-9)<.3){const rl=bmode(p.item)=='roll';p.dsh=rl?.34:.22;p.dk=rl?3:2;p.kx=-p.f*(rl?560:520);p.tb=-9}else p.tb=p.t}
+ p.gd=(bk&&p.y>=GY&&p.hit<=0&&!(p.dsh>0))?(i.a?'a':i.b?'b':'any'):null;
+ if((i.a||i.b)&&!p.gd&&p.cd<=0&&p.hit<=0&&!(p.dsh>0)){const kk=!i.a&&!!i.b;p.atk=kk?.3:.22;p.kick=kk;p.cd=(B?.3*(I.cf||1):.45)*(kk?1.4:1);push(p,kk?'b':'a');const cb=findCombo(p);if(cb){p.buf=[];if(cb.dash)p.kx=p.f*500}doHit(p,o,kk,cb)}
+ if(i.u&&(p.ug||0)>=100&&!(p.ut>0)&&p.hit<=0&&p.y>=GY){const U=ULT[p.item];p.ug=0;p.uq=U.h;p.uc=.5;p.ut=.5+U.h*.12+.25;rings.push({x:p.x,y:p.y-50,r:10,c:ITEMS[p.item].c});shake=10;spawn(p.x,p.y-50,ITEMS[p.item].c,30,360)}
+ if(p.ut>0){p.ut-=dt;if(p.uq>0){p.uc-=dt;if(p.uc<=0){ultHit(p,o);p.uq--;p.uc=.12}}}
+ p.pi={l:i.l,r:i.r,d:i.d};
+ if(i.k&&p.rage>=100&&!B){p.beast=8;p.rage=0;p.hp=Math.min(100,p.hp+35);spawn(p.x,p.y-50,'#6f6',20,300);
+  rings.push({x:p.x,y:p.y-50,r:10,c:ITEMS[p.item].c});spawn(p.x,p.y-50,ITEMS[p.item].c,40,420);shake=14}
+ if(B){p.beast-=dt;if(p.beast<=0){p.beast=0;spawn(p.x,p.y-50,'#fff',16,200)}}
+ p.vy+=1800*dt*(B&&I.fly?.55:1);p.y+=p.vy*dt;if(p.y>=GY){p.y=GY;p.vy=0}
+ p.x+=(p.vx+p.kx)*dt;p.kx*=Math.pow(.02,dt);
+ p.x=Math.max(30,Math.min(W-30,p.x))}
+function ai(e,p,dt){
+ const i={l:0,r:0,j:0,d:0,a:0,b:0,k:0,u:0},d=p.x-e.x,ad=Math.abs(d);
+ e.ait=(e.ait||0)-dt;if(e.ait<=0){e.ait=.3+Math.random()*.6;e.mode=Math.random()<.65?'atk':'back'}
+ const rng=e.beast>0?80:50;
+ if(e.mode=='atk'){if(ad>rng){d>0?i.r=1:i.l=1}else if(Math.random()<dt*3){if(Math.random()<.5)i.a=1;else i.b=1}}
+ else if(ad<220){d>0?i.l=1:i.r=1}
+ if(Math.random()<dt*.5)i.j=1;
+ if(e.rage>=100&&e.beast<=0)i.k=1;if((e.ug||0)>=100&&ad<ULT[e.item].r*.9&&Math.random()<dt*2)i.u=1;
+ return i}
+function update(dt){
+ step(P,E,inp,dt);step(E,P,ai(E,P,dt),dt);
+ for(const q of parts){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=700*dt;q.l-=dt}
+ parts=parts.filter(q=>q.l>0);
+ for(const r of rings){r.r+=380*dt}rings=rings.filter(r=>r.r<260);
+ if(shake>0)shake=Math.max(0,shake-40*dt);
+ if(P.hp<=0||E.hp<=0){state='over';msg=P.hp>0?'🏆 คุณชนะ!':'💀 คุณแพ้…';showOv(msg,'สู้อีกครั้ง')}}
+function L(x1,y1,x2,y2){g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke()}
+function tri(a,b,c,d,e,f){g.beginPath();g.moveTo(a,b);g.lineTo(c,d);g.lineTo(e,f);g.closePath();g.fill()}
+function draw(p){
+ const B=p.beast>0,I=ITEMS[p.item],s=B?I.sc:1,a=p.atk>0&&!p.kick,kk=p.atk>0&&!!p.kick;
+ g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(p.x,GY+4,28*s,6,0,0,6.28);g.fill();
+ g.save();g.translate(p.x,p.y);g.scale(p.f*s,s);if(p.cr)g.scale(1,.72);if(p.dsh>0&&p.dk==3){g.translate(0,-35);g.rotate(-p.dsh*18);g.translate(0,35)}
+ const col=p.hit>0?'#fff':(B?I.c:p.col);
+ g.strokeStyle=col;g.fillStyle=col;g.lineCap='round';g.lineWidth=B?7:5;
+ if(B){g.globalAlpha=.18+.08*Math.sin(p.t*12);g.beginPath();g.arc(0,-50,64,0,6.28);g.fill();g.globalAlpha=1}
+ const mv=Math.abs(p.vx)>1&&p.y>=GY?Math.sin(p.t*16)*14:0,up=p.y<GY-1?-8:0;
+ if(B&&p.item=='dragon'){g.globalAlpha=.85;g.beginPath();g.moveTo(-2,-62);g.lineTo(-48,-102);g.lineTo(-32,-62);g.lineTo(-52,-50);g.lineTo(-2,-48);g.closePath();g.fill();g.globalAlpha=1}
+ if(B&&I.camo&&Math.abs(p.vx)<1&&!(p.atk>0))g.globalAlpha=.4;
+ L(0,-40,kk?(B?58:48):mv+4,kk?-30:up);L(0,-40,-mv-4,up);L(0,-40,0,-68);
+ const hx=a?(B?52:44):(p.gd?18:14),hy=a?-62:(p.gd?-68:-46);
+ L(0,-62,-14,-46);L(0,-62,hx,hy);
+ g.beginPath();g.arc(0,-80,12,0,6.28);g.stroke();
+ g.fillStyle=B?'#fff':col;g.fillRect(4,-84,4,4);g.fillStyle=col;
+ if(B){
+  if(p.item=='wolf'){tri(-8,-90,-4,-106,1,-91);tri(2,-91,7,-106,11,-90);
+   g.beginPath();g.moveTo(0,-44);g.quadraticCurveTo(-34,-70,-36,-38);g.stroke();
+   L(hx,hy,hx+10,hy-6);L(hx,hy,hx+13,hy);L(hx,hy,hx+10,hy+6)}
+  if(p.item=='tiger'){g.beginPath();g.arc(-7,-92,5,0,6.28);g.fill();g.beginPath();g.arc(7,-92,5,0,6.28);g.fill();
+   g.strokeStyle='#222';g.lineWidth=4;L(-7,-50,7,-50);L(-7,-58,7,-58);L(-6,-65,6,-65);g.strokeStyle=col;
+   g.lineWidth=7;L(hx,hy,hx+10,hy-6);L(hx,hy,hx+12,hy+4)}
+  if(p.item=='dragon'){L(-6,-90,-11,-106);L(6,-90,10,-106);L(0,-44,-32,-32);
+   if(a){g.fillStyle='#ffb300';g.beginPath();g.arc(hx+14,hy,12,0,6.28);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(hx+14,hy,5,0,6.28);g.fill()}}
+  if(p.item=='bat'){g.globalAlpha=.85;const fl=Math.sin(p.t*18)*8;g.beginPath();g.moveTo(-2,-62);g.lineTo(-50,-90+fl);g.lineTo(-40,-70);g.lineTo(-30,-72+fl);g.lineTo(-20,-52);g.lineTo(-2,-48);g.closePath();g.fill();g.globalAlpha=1;tri(-9,-90,-5,-108,0,-91);tri(2,-91,7,-108,11,-90);g.fillStyle='#fff';tri(2,-72,5,-72,3.5,-66)}
+  if(p.item=='rabbit'){g.beginPath();g.ellipse(-4,-104,4,12,-.2,0,6.28);g.fill();g.beginPath();g.ellipse(6,-104,4,12,.2,0,6.28);g.fill();g.beginPath();g.arc(-10,-44,7,0,6.28);g.fill();g.fillStyle='#fff';g.fillRect(3,-72,3,4)}
+  if(p.item=='mole'){g.beginPath();g.arc(12,-80,6,0,6.28);g.fill();g.fillStyle='#ffd0d0';g.beginPath();g.arc(17,-80,3,0,6.28);g.fill();g.strokeStyle='#d8d0c0';g.lineWidth=5;L(hx,hy,hx+10,hy-7);L(hx,hy,hx+13,hy);L(hx,hy,hx+10,hy+7)}
+  if(p.item=='beetle'){g.beginPath();g.ellipse(-8,-52,10,16,0,0,6.28);g.fill();L(8,-90,26,-106);L(26,-106,32,-96);L(hx,hy,hx+12,hy-6);L(hx,hy,hx+12,hy+6)}
+  if(p.item=='bull'){g.lineWidth=6;g.beginPath();g.moveTo(-10,-90);g.quadraticCurveTo(-24,-92,-20,-108);g.stroke();g.beginPath();g.moveTo(10,-90);g.quadraticCurveTo(26,-92,22,-108);g.stroke();g.beginPath();g.arc(-4,-66,10,Math.PI,0);g.fill();g.beginPath();g.arc(hx,hy,8,0,6.28);g.fill()}
+  if(p.item=='hopper'){g.lineWidth=4;L(-3,-92,-16,-114);L(4,-92,16,-114);L(-2,-40,-24,-60);L(-24,-60,-30,-30);g.globalAlpha=.5;tri(-4,-64,-42,-82,-30,-50);g.globalAlpha=1;L(hx,hy,hx+14,hy-10)}
+  if(p.item=='lizard'){g.beginPath();g.moveTo(0,-44);g.quadraticCurveTo(-30,-30,-48,-52);g.stroke();tri(-6,-92,0,-110,6,-92);if(a){g.strokeStyle='#ff6b81';g.lineWidth=4;L(10,-78,70,-76)}}
+ }else{
+  if(p.item=='beetle'){g.fillStyle='#7a4b2a';tri(-2,-91,6,-91,2,-103)}
+  if(p.item=='bull'){g.fillStyle='#b03a2e';tri(-10,-88,-6,-101,-3,-90);tri(3,-90,6,-101,10,-88)}
+  if(p.item=='hopper'){g.strokeStyle='#8bc34a';g.lineWidth=3;L(-2,-91,-8,-105);L(3,-91,9,-105)}
+  if(p.item=='lizard'){g.strokeStyle='#17a589';g.lineWidth=3;g.beginPath();g.moveTo(0,-44);g.quadraticCurveTo(-18,-34,-26,-46);g.stroke()}
+  if(p.item=='bat'){g.fillStyle='#8a63d2';tri(-14,-62,-30,-72,-18,-52)}
+  if(p.item=='rabbit'){g.fillStyle='#ff8fb8';g.beginPath();g.ellipse(-3,-96,3,9,-.2,0,6.28);g.fill();g.beginPath();g.ellipse(5,-96,3,9,.2,0,6.28);g.fill()}
+  if(p.item=='mole'){g.fillStyle='#9c7a5b';g.beginPath();g.arc(hx,hy,7,0,6.28);g.fill()}
+  if(p.item=='wolf'){g.fillStyle='#fff';tri(-5,-67,5,-67,0,-56)}
+  if(p.item=='tiger'){g.fillStyle='#f0932b';g.beginPath();g.arc(hx,hy,6,0,6.28);g.fill()}
+  if(p.item=='dragon'){g.fillStyle='#e5484d';g.beginPath();g.arc(-14,-50,7,0,6.28);g.fill()}
+ }
+ if(p.ut>0){const U=ULT[p.item];g.globalAlpha=.6;g.strokeStyle=I.c;g.fillStyle=I.c;g.lineWidth=6;
+  if(p.uq>=U.h){g.beginPath();g.arc(0,-50,24+(1-p.uc/.5)*60,0,6.28);g.stroke()}
+  else{g.lineWidth=14;g.beginPath();g.moveTo(24,-60);g.lineTo(U.r,-60+Math.sin(p.t*70)*28);g.stroke();g.beginPath();g.arc(U.r,-58,18,0,6.28);g.fill()}
+  g.globalAlpha=1}
+ if(p.gd){g.globalAlpha=.7;g.strokeStyle=p.gd=='a'?'#ff7a7a':p.gd=='b'?'#6ca8ff':'#9fe8ff';g.lineWidth=3;g.beginPath();g.arc(20,-56,34,-1.3,1.3);g.stroke();g.globalAlpha=1}
+ g.restore()}
+function bar(x,y,w,h,v,c,rev){g.fillStyle='rgba(255,255,255,.15)';g.fillRect(x,y,w,h);g.fillStyle=c;const ww=w*Math.max(0,Math.min(1,v));g.fillRect(rev?x+w-ww:x,y,ww,h)}
+function hud(p,x,name,rev){
+ g.fillStyle='#f0eee8';g.font='13px system-ui,sans-serif';g.textAlign=rev?'right':'left';
+ g.fillText(name+' · '+ITEMS[p.item].n,rev?x+300:x,16);
+ bar(x,22,300,12,p.hp/100,'#e5484d',rev);
+ const B=p.beast>0,full=p.rage>=100;
+ bar(x,38,300,6,B?p.beast/8:p.rage/100,B?ITEMS[p.item].c:(full&&Math.sin(Date.now()/100)>0?'#fff':'#f5c542'),rev);
+ bar(x,48,300,6,(p.ug||0)/100,(p.ug||0)>=100&&Math.sin(Date.now()/80)>0?'#fff':'#a46bff',rev)}
+function cmbHud(p,x,r){if((p.ct>0&&p.cc>1)||p.cnt>0){g.textAlign=r?'right':'left';g.fillStyle='#f5c542';g.font='bold 22px system-ui,sans-serif';if(p.ct>0&&p.cc>1)g.fillText(p.cc+' HIT',x,80);if(p.cnt>0){g.font='bold 15px system-ui,sans-serif';g.fillStyle='#fff';g.fillText('⚡ '+p.cn,x,100)}}}
+function render(){
+ g.save();if(shake>0)g.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+ const gr=g.createLinearGradient(0,0,0,400);gr.addColorStop(0,'#1b1b34');gr.addColorStop(1,'#3a2a44');
+ g.fillStyle=gr;g.fillRect(-20,-20,840,440);
+ g.fillStyle='#f5e9c8';g.beginPath();g.arc(640,90,34,0,6.28);g.fill();
+ g.fillStyle='#14141c';g.fillRect(-20,GY+6,840,80);
+ g.strokeStyle='#555';g.lineWidth=2;L(-20,GY+6,840,GY+6);
+ if(P){for(const r of rings){g.strokeStyle=r.c;g.globalAlpha=Math.max(0,1-r.r/260);g.lineWidth=6;g.beginPath();g.arc(r.x,r.y,r.r,0,6.28);g.stroke();g.globalAlpha=1}
+ draw(E);draw(P);
+ for(const q of parts){g.globalAlpha=Math.max(0,q.l*2);g.fillStyle=q.c;g.fillRect(q.x,q.y,4,4)}g.globalAlpha=1;
+ g.restore();hud(P,20,'คุณ',false);hud(E,W-320,'ศัตรู',true);cmbHud(P,20,false);cmbHud(E,W-20,true);
+ if(state=='play'&&(P.ug||0)>=100&&!(P.ut>0)){g.textAlign='center';g.fillStyle='#c9a0ff';g.font='bold 16px system-ui,sans-serif';g.fillText('✨ ULT พร้อม! กดปุ่ม ULT',W/2,92)}
+ if(state=='play'&&P.rage>=100&&P.beast<=0){g.fillStyle='#f5c542';g.font='bold 16px system-ui,sans-serif';g.textAlign='center';g.fillText('พลังเต็ม! กด K / 🔥 เพื่อแปลงร่าง',W/2,70)}
+ }else g.restore()}
+let last=performance.now();
+function loop(n){const dt=Math.min(.033,(n-last)/1000);last=n;if(state=='play'&&st.hidden)update(dt);render();ub.classList.toggle('rd',(P&&state=='play'&&(P.ug||0)>=100&&!(P.ut>0))||edit);requestAnimationFrame(loop)}
+const ov=document.getElementById('ov'),go=document.getElementById('go');
+function showOv(t,b){ov.querySelector('h1').textContent=t;go.textContent=b;ov.style.display='flex'}
+function fs(){try{const d=document.documentElement,r=(d.requestFullscreen||d.webkitRequestFullscreen||function(){}).call(d);if(r&&r.catch)r.catch(()=>{})}catch(e){}try{const o=screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape');if(o&&o.catch)o.catch(()=>{})}catch(e){}}
+document.getElementById('fsb').onclick=fs;
+go.onclick=()=>{ov.style.display='none';reset();fs()};
+const box=document.getElementById('items'),lab=document.getElementById('lab');
+function lbl(){lab.textContent=({wolf:'🐺',tiger:'🐯',dragon:'🐲',bat:'🦇',rabbit:'🐰',mole:'🦫',beetle:'🪲',bull:'🐂',hopper:'🦗',lizard:'🦎'})[sel]+' '+ITEMS[sel].n+' ▾'}
+KEYS.forEach(k=>{const b=document.createElement('button');b.innerHTML=ITEMS[k].n+'<br><small>'+ITEMS[k].f.split(': ')[1]+'</small>';
+ b.style.touchAction='manipulation';
+ b.onclick=()=>{sel=k;if(P&&P.beast<=0)P.item=k;[...box.children].forEach((x,i)=>x.classList.toggle('on',KEYS[i]==k));lbl();box.hidden=true};
+ box.appendChild(b)});
+box.children[0].classList.add('on');lbl();lab.onclick=()=>{box.hidden=!box.hidden};
+const DEF={l:'a',r:'d',j:'w',d:'s',a:'j',b:'k',k:'l',u:'u',size:56};
+let cfg=Object.assign({},DEF);
+try{Object.assign(cfg,JSON.parse(localStorage.getItem('sr_cfg2')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('sr_cfg2',JSON.stringify(cfg))}catch(e){}};
+const NM={l:'◀ ซ้าย',r:'▶ ขวา',j:'▲ กระโดด',d:'▼ หมอบ',a:'A ต่อย',b:'B เตะ',k:'🔥 แปลงร่าง',u:'✨ อัลติเมท'};
+const kn=k=>k==' '?'Space':k.length>1?k:k.toUpperCase();
+let listen=null,edit=false,drag=null,pick=null;const ub=document.getElementById('ultb');const op={k:0,s:0,m:0,c:0,b:0};
+function szHtml(){if(!edit)return '';const N={l:'◀',r:'▶',j:'▲',d:'▼',a:'A',b:'B',k:'🔥',u:'✨'};if(!pick)return '<small>แตะปุ่มบนจอเพื่อเลือก แล้วปรับขนาดรายปุ่มได้</small>';const z=Math.round(((cfg.sz&&cfg.sz[pick])||1)*100);return '<label>ขนาดปุ่ม '+N[pick]+': <span id="psv">'+z+'%</span><input type="range" id="psz" min="50" max="250" step="5" value="'+z+'"></label><button id="prs" style="touch-action:manipulation">รีเซ็ตขนาดปุ่มนี้</button>'}
+function bmHtml(){return KEYS.map(k=>'<label class="bm">'+ITEMS[k].n+' <select data-bm="'+k+'"><option value="dash"'+(bmode(k)=='dash'?' selected':'')+'>พุ่งถอย</option><option value="roll"'+(bmode(k)=='roll'?' selected':'')+'>กลิ้งถอย</option></select></label>').join('')+'<small>พุ่งถอย: เร็ว หลบช่วงสั้น · กลิ้งถอย: หลบได้นานกว่า</small>'}
+function comboList(){const sy={a:'A',b:'B',d:'▼',f:'▶'};return CB.map(c=>'<div><b>'+c.k.split('').map(x=>sy[x]).join(' → ')+'</b> : '+c.n+' (×'+c.m+')</div>').join('')+'<small>กดต่อเนื่องภายใน 1 วินาที · ตีโดนแล้วตีต่อได้เร็วขึ้น · ▶ คือเดินเข้าหาศัตรู</small>'}
+const pos=k=>(cfg.pos&&cfg.pos[k])||[0,0];
+function applyPos(){document.querySelectorAll('.pad button').forEach(b=>{const p=pos(b.dataset.k);b.style.transform='translate('+p[0]+'px,'+p[1]+'px) scale('+((cfg.sz&&cfg.sz[b.dataset.k])||1)+')';b.classList.toggle('pk',edit&&b.dataset.k==pick)})}
+function setEdit(v){edit=v;if(!v)pick=null;document.querySelector('.pad').classList.toggle('edit',v);document.getElementById('st').classList.toggle('ed',v);applyPos()}
+const act=key=>Object.keys(NM).find(a=>cfg[a]==key);
+const st=document.getElementById('st'),gear=document.getElementById('gear');
+function applySize(){document.documentElement.style.setProperty('--pb',cfg.size+'px')}
+function buildSt(){
+ st.innerHTML='<details data-d="k"'+(op.k?' open':'')+'><summary>⌨ ปุ่มคีย์บอร์ด</summary><small>แตะปุ่ม แล้วกดคีย์ใหม่ · Esc ยกเลิก</small><div class="kb"></div></details><details data-d="s"'+(op.s?' open':'')+'><summary>📏 ขนาดปุ่มบนจอ</summary><label>ขนาดพื้นฐานทุกปุ่ม: <span id="sv">'+cfg.size+'</span>px<input type="range" id="sz" min="40" max="110" value="'+cfg.size+'"></label></details><details data-d="m"'+(op.m?' open':'')+'><summary>✋ ย้าย / ปรับขนาดรายปุ่ม</summary><button id="mv" style="touch-action:manipulation" class="'+(edit?'on':'')+'">'+(edit?'✅ เสร็จสิ้น (ลากปุ่มบนจอได้เลย)':'✋ เริ่มย้ายปุ่ม')+'</button>'+szHtml()+'</details><details data-d="c"'+(op.c?' open':'')+'><summary>🥊 คอมโบ</summary>'+comboList()+'</details><details data-d="b"'+(op.b?' open':'')+'><summary>🏃 ท่าหลบหลัง (กดหลัง 2 ครั้ง)</summary>'+bmHtml()+'</details><button id="rs" style="touch-action:manipulation">คืนค่าเริ่มต้น</button>';
+ const kb=st.querySelector('.kb');
+ for(const a in NM){const b=document.createElement('button');b.textContent=NM[a]+': '+(listen==a?'กดคีย์…':kn(cfg[a]));b.classList.toggle('on',listen==a);b.style.touchAction='manipulation';b.onclick=()=>{listen=a;buildSt()};kb.appendChild(b)}
+ const sz=st.querySelector('#sz'),sv=st.querySelector('#sv');
+ sz.oninput=()=>{cfg.size=+sz.value;sv.textContent=cfg.size;applySize();save()};
+ const ps=st.querySelector('#psz');if(ps)ps.oninput=()=>{(cfg.sz=cfg.sz||{})[pick]=ps.value/100;st.querySelector('#psv').textContent=ps.value+'%';applyPos();save()};
+ const pr=st.querySelector('#prs');if(pr)pr.onclick=()=>{if(cfg.sz)delete cfg.sz[pick];applyPos();save();buildSt()};
+ st.querySelectorAll('select[data-bm]').forEach(s=>s.onchange=()=>{(cfg.bm=cfg.bm||{})[s.dataset.bm]=s.value;save()});
+ st.querySelectorAll('details').forEach(d=>d.ontoggle=()=>{op[d.dataset.d]=d.open?1:0});
+ st.querySelector('#mv').onclick=()=>{setEdit(!edit);buildSt()};
+ st.querySelector('#rs').onclick=()=>{cfg=Object.assign({},DEF);listen=null;setEdit(false);save();applySize();applyPos();buildSt()}}
+gear.onclick=()=>{st.hidden=!st.hidden;listen=null;setEdit(false);gear.textContent=st.hidden?'⚙ ตั้งค่า ▾':'⚙ ตั้งค่า ▴';buildSt()};
+applySize();applyPos();buildSt();
+addEventListener('keydown',e=>{const key=e.key.toLowerCase();
+ if(listen){e.preventDefault();if(key!='escape'){for(const a in NM)if(cfg[a]==key)cfg[a]=cfg[listen];cfg[listen]=key;save()}listen=null;buildSt();return}
+ const k=act(key);if(k){inp[k]=1;e.preventDefault()}});
+addEventListener('keyup',e=>{const k=act(e.key.toLowerCase());if(k)inp[k]=0});
+document.querySelectorAll('.pad button').forEach(b=>{const k=b.dataset.k;
+ b.addEventListener('pointerdown',e=>{e.preventDefault();
+  if(edit){const p=pos(k);drag={b,sx:e.clientX,sy:e.clientY,ox:p[0],oy:p[1]};b.setPointerCapture(e.pointerId);pick=k;applyPos();buildSt();return}
+  inp[k]=1});
+ b.addEventListener('pointermove',e=>{if(!drag||drag.b!==b)return;
+  let x=drag.ox+e.clientX-drag.sx,y=drag.oy+e.clientY-drag.sy;
+  y=Math.max(-220,Math.min(220,y));
+  const r=b.getBoundingClientRect(),cx=r.left-pos(k)[0];
+  x=Math.max(-cx,Math.min(innerWidth-r.width-cx,x));
+  (cfg.pos=cfg.pos||{})[k]=[Math.round(x),Math.round(y)];applyPos()});
+ const up=()=>{if(drag&&drag.b===b){drag=null;save()}inp[k]=0};
+ ['pointerup','pointerleave','pointercancel'].forEach(t=>b.addEventListener(t,up))});
+P=mk(200,1,sel,'#f2f2f2');E=mk(600,-1,'tiger','#ff9aa2');
+requestAnimationFrame(loop);
+</script></body></html>

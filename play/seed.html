@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Arcade — ใส่สถานะทดลองออร่า</title>
+<style>
+  body { background: #0b0f0b; color: #c8facc; font-family: ui-monospace, monospace; padding: 24px; line-height: 1.7; }
+  a { color: #39ff88; }
+  .note { color: #7f9a83; font-size: 13px; }
+</style>
+</head>
+<body>
+<p id="msg">กำลังใส่ข้อมูลทดลอง…</p>
+<p class="note">สคริปต์นี้ทำงานในเบราว์เซอร์นี้เท่านั้น: เพิ่ม Token ทดลอง 2,000, ปลดล็อกยุค 1–4, และเก็บข้อมูลเดิมไว้ที่คีย์สำรอง <code>flutter.arcade_state_v2.backup</code></p>
+<p><a href="../">เปิด Arcade</a></p>
+<script>
+(function () {
+  var KEY = 'flutter.arcade_state_v2';
+  var GRANT = {
+    id: 'web-seed:aura-demo',
+    kind: 'grant',
+    amount: 2000,
+    source: 'test_grant',
+    ref: 'web-seed',
+    at: new Date().toISOString()
+  };
+  var state = null;
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      localStorage.setItem(KEY + '.backup', raw);
+      state = JSON.parse(JSON.parse(raw));
+    }
+  } catch (e) { state = null; }
+  if (!state || typeof state !== 'object') {
+    state = {
+      schemaVersion: 2,
+      ledger: { schemaVersion: 1, balance: 0, entries: [] },
+      daily: { dayKey: '' },
+      progress: {}
+    };
+  }
+  state.schemaVersion = 2;
+  state.ledger = state.ledger || { schemaVersion: 1, balance: 0, entries: [] };
+  state.ledger.entries = state.ledger.entries || [];
+  if (!state.ledger.entries.some(function (e) { return e && e.id === GRANT.id; })) {
+    state.ledger.entries.push(GRANT);
+  }
+  state.ledger.balance = state.ledger.entries.reduce(function (sum, e) {
+    return sum + (e.kind === 'grant' ? e.amount : -e.amount);
+  }, 0);
+  state.daily = state.daily || { dayKey: '' };
+  state.progress = state.progress || {};
+  var eras = state.progress.unlockedEraLevels || [1];
+  [1, 2, 3, 4].forEach(function (level) { if (eras.indexOf(level) < 0) eras.push(level); });
+  eras.sort(function (a, b) { return a - b; });
+  state.progress.unlockedEraLevels = eras;
+  state.progress.snakeTotalScore = Math.max(state.progress.snakeTotalScore || 0, 40000);
+  localStorage.setItem(KEY, JSON.stringify(JSON.stringify(state)));
+  document.getElementById('msg').textContent =
+    'พร้อมแล้ว — Token ' + state.ledger.balance + ' · ยุคที่ปลดล็อก ' + eras.join(', ');
+  setTimeout(function () { location.replace('/'); }, 1200);
+})();
+</script>
+</body>
+</html>
